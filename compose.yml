@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  web:
+    build:
+      context: app
+    ports:
+      - "22:22" # SSH access
+    command: >
+      /bin/sh -c "/usr/sbin/sshd && python3 manage.py runserver 0.0.0.0:8000"
