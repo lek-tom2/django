@@ -1,25 +1,69 @@
+from lib2to3.fixes.fix_input import context
 
 from django.http import HttpResponse, Http404
 from django.template import loader
 
-quotes = {
-    "shakespeare": {"content": "I am William the PearShaker"},
-    "einstein": {"content": "I love relativity. I love my Relatives i meant"},
-    "coehlo": {"content": "Machine steht"}
+tutorials = {
+    "tutorials": [
+        "django",
+        "gregtechnewhorizonts"
+    ],
+    "chapters": {
+        "django": [
+            "intro",
+            "paths"
+        ],
+        "gregtechnewhorizonts": [
+            "beginning",
+            "steamage",
+            "lv",
+            "mv",
+        ]
+    }
 }
 
 def main(request):
     template = loader.get_template("quotes/index.html")
+    topics_list = ",".join(tutorials["tutorials"])
     context = {
-        "nate": "higgers"
+        "tresc": f"Available topics: {topics_list}",
+        "tytul": "Available tutorial topics"
     }
-    return HttpResponse(template.render(context, request))
+    return HttpResponse(template.render(context, request), status=200)
 
-def get_author(request, author):
-    if author not in quotes:
-        HttpResponse("brak autora cie dobija?", status=404)
-    print(quotes[author], author)
-    context = quotes[author]
 
+def get_tutorial(request, topic):
     template = loader.get_template("quotes/quotes.html")
-    return HttpResponse(template.render(context, request))
+    if topic not in tutorials["tutorials"]:
+        context = {
+            "tytul": "No such tutorial",
+            "tresc": f"There is no tutorial for: {topic}",
+        }
+        return HttpResponse(template.render(context, request), status=404)
+
+    aviable_chapters = ",".join(tutorials["chapters"][topic])
+    context = {
+        "tytul": f"{topic} tutorial chapters",
+        "tresc": f"Available chapters: {aviable_chapters}",
+    }
+
+    return HttpResponse(template.render(context, request), status=200)
+
+
+def get_chapter(request, topic, chapter):
+    template = loader.get_template("quotes/quotes.html")
+
+    if chapter not in tutorials["chapters"][topic]:
+        context = {
+            "tytul": "No such chapter",
+            "tresc": f"No chapter {chapter} for {topic}",
+        }
+        return HttpResponse(template.render(context, request), status=404)
+
+    context = {
+        "tytul": f"{",".join(tutorials['tutorials'])} - {chapter}",
+        "tresc": f"{chapter} yes",
+    }
+
+    return HttpResponse(template.render(context, request), status=200)
+
