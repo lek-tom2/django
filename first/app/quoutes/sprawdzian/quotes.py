@@ -61,8 +61,8 @@ def get_chapter(request, topic, chapter):
         return HttpResponse(template.render(context, request), status=404)
 
     context = {
-        "tytul": f"{",".join(tutorials['tutorials'])} - {chapter}",
-        "tresc": f"{chapter} yes",
+        "tytul": f"{topic} - {chapter}",
+        "tresc": f"{topic} - {chapter}",
     }
 
     return HttpResponse(template.render(context, request), status=200)
