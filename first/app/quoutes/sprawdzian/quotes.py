@@ -1,25 +1,18 @@
-
 from django.http import HttpResponse, Http404
 from django.template import loader
 
 tutorials = {
     "tutorials": [
         "django",
-        "gregtechnewhorizonts"
     ],
     "chapters": {
         "django": [
             "intro",
             "paths"
         ],
-        "gregtechnewhorizonts": [
-            "beginning",
-            "steamage",
-            "lv",
-            "mv",
-        ]
     }
 }
+
 
 def main(request):
     template = loader.get_template("quotes/index.html")
@@ -33,43 +26,50 @@ def main(request):
 
 def get_tutorial(request, topic):
     template = loader.get_template("quotes/quotes.html")
-    if topic not in tutorials["tutorials"]:
+
+    # Split topic string in case multiple topics are passed
+    topic_list = topic.split(',')
+
+    for single_topic in topic_list:
+        if single_topic not in tutorials["tutorials"]:
+            context = {
+                "tytul": "No such tutorial",
+                "tresc": f"There is no tutorial for: {single_topic}",
+            }
+            return HttpResponse(template.render(context, request), status=404)
+
+        available_chapters = ",".join(tutorials["chapters"][single_topic])
         context = {
-            "tytul": "No such tutorial",
-            "tresc": f"There is no tutorial for: {topic}",
+            "tytul": f"{single_topic} tutorial chapters",
+            "tresc": f"Available chapters: {available_chapters}",
         }
-        return HttpResponse(template.render(context, request), status=404)
-
-    aviable_chapters = ",".join(tutorials["chapters"][topic])
-    context = {
-        "tytul": f"{topic} tutorial chapters",
-        "tresc": f"Available chapters: {aviable_chapters}",
-    }
-
-    return HttpResponse(template.render(context, request), status=200)
+        return HttpResponse(template.render(context, request), status=200)
 
 
 def get_chapter(request, topic, chapter):
     template = loader.get_template("quotes/quotes.html")
 
-    if topic not in tutorials["chapters"]:
+    # Split topic string in case multiple topics are passed
+    topic_list = topic.split(',')
+
+    for single_topic in topic_list:
+        if single_topic not in tutorials["chapters"]:
+            context = {
+                "tytul": "No such topic",
+                    "tresc": f"No such chapter",
+            }
+            return HttpResponse(template.render(context, request), status=404)
+
+        if chapter not in tutorials["chapters"][single_topic]:
+            context = {
+                "tytul": "No such chapter",
+                "tresc": f"No such chapter",
+            }
+            return HttpResponse(template.render(context, request), status=404)
+
         context = {
-            "tytul": "No such topic",
-            "tresc": f"There is no tutorial for: {topic}",
+            "tytul": f"{single_topic} - {chapter}",
+            "tresc": f"{single_topic} - {chapter}",
         }
-        return HttpResponse(template.render(context, request), status=404)
 
-    if chapter not in tutorials["chapters"][topic]:
-        context = {
-            "tytul": "No such chapter",
-            "tresc": f"No chapter {chapter} for topic {topic}",
-        }
-        return HttpResponse(template.render(context, request), status=404)
-
-    context = {
-        "tytul": f"{topic} - {chapter}",
-        "tresc": f"{topic} - {chapter}",
-    }
-
-    return HttpResponse(template.render(context, request), status=200)
-
+        return HttpResponse(template.render(context, request), status=200)
