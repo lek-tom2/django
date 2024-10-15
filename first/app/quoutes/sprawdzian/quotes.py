@@ -1,4 +1,3 @@
-from lib2to3.fixes.fix_input import context
 
 from django.http import HttpResponse, Http404
 from django.template import loader
@@ -53,10 +52,17 @@ def get_tutorial(request, topic):
 def get_chapter(request, topic, chapter):
     template = loader.get_template("quotes/quotes.html")
 
+    if topic not in tutorials["chapters"]:
+        context = {
+            "tytul": "No such topic",
+            "tresc": f"There is no tutorial for: {topic}",
+        }
+        return HttpResponse(template.render(context, request), status=404)
+
     if chapter not in tutorials["chapters"][topic]:
         context = {
             "tytul": "No such chapter",
-            "tresc": f"No chapter {chapter} for {topic}",
+            "tresc": f"No chapter {chapter} for topic {topic}",
         }
         return HttpResponse(template.render(context, request), status=404)
 
